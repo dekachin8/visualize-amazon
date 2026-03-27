@@ -1,0 +1,29 @@
+{
+  "buildCommand": "npm run build",
+  "devCommand": "npm run dev",
+  "installCommand": "npm install",
+  "framework": "nextjs",
+  "outputDirectory": ".next",
+  "env": [
+    "AMAZON_SELLING_PARTNER_API_KEY",
+    "AMAZON_SELLING_PARTNER_API_SECRET",
+    "AMAZON_REFRESH_TOKEN",
+    "AMAZON_SELLER_ID",
+    "NEXT_PUBLIC_SUPABASE_URL",
+    "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+    "SUPABASE_SERVICE_ROLE_KEY",
+    "NEXT_PUBLIC_APP_URL",
+    "SYNC_SCHEDULE",
+    "LOG_LEVEL"
+  ],
+  "crons": [
+    {
+      "path": "/api/sync/amazon",
+      "schedule": "0 2 * * *"
+    },
+    {
+      "path": "/api/backup/run",
+      "schedule": "0 3 * * 0"
+    }
+  ]
+}
