@@ -1,397 +1,222 @@
-# DEPLOYMENT.md - Production Deployment Guide
+# Deployment Guide
 
-Complete guide to deploying VISUALIZE Amazon system to production.
+## Quick Deploy to Vercel
 
-## Deployment Platforms
+### Prerequisites
+- GitHub account
+- Vercel account (free tier works)
 
-### Recommended: Vercel (Easy)
+### Steps
 
-Vercel is the easiest path to production. It's optimized for Next.js and handles most setup automatically.
+1. **Push to GitHub**
+   ```bash
+   cd ~/shared/visualize-amazon
+   git init
+   git add .
+   git commit -m "Initial commit: VISUALIZE dashboard"
+   gh repo create visualize-amazon --private --source=. --remote=origin --push
+   ```
 
-**Advantages:**
-- One-click deployment from GitHub
-- Automatic HTTPS, CDN, backups
-- Built-in cron job support for data sync
-- Free tier available for low traffic
-- Automatic preview deployments on PRs
+2. **Deploy to Vercel**
+   - Go to https://vercel.com/new
+   - Import your `visualize-amazon` GitHub repository
+   - Framework Preset: **Next.js**
+   - Root Directory: `./`
+   - Leave build settings as default
+   - Click **Deploy**
 
-### Alternative: Self-Hosted
+3. **Configure Environment Variables** (when ready for SP-API)
+   - In Vercel dashboard, go to Settings → Environment Variables
+   - Add:
+     ```
+     AMAZON_SP_API_REFRESH_TOKEN=your_token
+     AMAZON_SP_API_CLIENT_ID=your_client_id
+     AMAZON_SP_API_CLIENT_SECRET=your_client_secret
+     AMAZON_SELLER_ID=your_seller_id
+     AMAZON_MARKETPLACE_ID=ATVPDKIKX0DER
+     ```
 
-Deploy to your own server if you need full control.
+4. **Done!**
+   - Your dashboard will be live at `https://visualize-amazon-[random].vercel.app`
+   - Auto-deploys on every push to main
 
 ---
 
-## Option 1: Vercel Deployment (Recommended)
+## Manual Deployment
 
-### Prerequisites
-
-- GitHub account with project repo
-- Vercel account (free tier OK)
-- All environment variables ready
-
-### Step 1: Connect GitHub Repository
-
-1. Push code to GitHub:
+### Build Locally
 ```bash
-git push origin main
+npm run build
+npm start
+# Runs on http://localhost:3000
 ```
 
-2. Visit [vercel.com](https://vercel.com)
-3. Click **New Project**
-4. Select your GitHub repo: `visualize-amazon`
-5. Click **Import**
+### Deploy to VPS/Server
+```bash
+# Build
+npm run build
 
-### Step 2: Configure Environment Variables
+# Copy .next/, public/, package.json, next.config.js to server
 
-In Vercel project dashboard:
-
-1. Go to **Settings** → **Environment Variables**
-2. Add each variable from `.env.example`:
-   - `AMAZON_SELLING_PARTNER_API_KEY`
-   - `AMAZON_SELLING_PARTNER_API_SECRET`
-   - `AMAZON_REFRESH_TOKEN`
-   - `AMAZON_SELLER_ID`
-   - `NEXT_PUBLIC_SUPABASE_URL`
-   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-   - `SUPABASE_SERVICE_ROLE_KEY`
-   - `NEXT_PUBLIC_APP_URL` (set to your Vercel domain)
-
-3. Click **Save**
-
-### Step 3: Configure Cron Jobs
-
-Vercel will read `vercel.json` automatically:
-
-```json
-{
-  "crons": [
-    {
-      "path": "/api/sync/amazon",
-      "schedule": "0 2 * * *"
-    },
-    {
-      "path": "/api/backup/run",
-      "schedule": "0 3 * * 0"
-    }
-  ]
-}
+# On server
+npm install --production
+npm start
 ```
-
-This configuration is already in your project. It will:
-- Sync Amazon data daily at 2 AM UTC
-- Run backups weekly on Sundays at 3 AM UTC
-
-### Step 4: Deploy
-
-Click **Deploy** button in Vercel dashboard.
-
-Vercel will:
-1. Clone your repo
-2. Install dependencies
-3. Build the project
-4. Deploy to CDN
-5. Provide a live URL
-
-Your app is now live! 🎉
-
-### Step 5: Set Production Domain (Optional)
-
-To use a custom domain:
-
-1. In Vercel → **Settings** → **Domains**
-2. Add your custom domain
-3. Update DNS records as instructed
-4. Verify domain ownership
 
 ---
 
-## Option 2: Self-Hosted Deployment
+## Environment Variables
 
-### Prerequisites
-
-- Linux server (Ubuntu 20+ recommended)
-- Node.js 18+
-- PostgreSQL (for Supabase alternative)
-- PM2 (process manager)
-- Nginx (reverse proxy)
-
-### Step 1: Set Up Server
+Create `.env.local` for development:
 
 ```bash
-# SSH into your server
-ssh user@your-server.com
+# Application
+NEXT_PUBLIC_APP_NAME="VISUALIZE Sports Dashboard"
 
-# Update system
-sudo apt update && sudo apt upgrade -y
-
-# Install Node.js
-curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
-sudo apt install -y nodejs
-
-# Install PM2 globally
-sudo npm install -g pm2
-
-# Install Nginx
-sudo apt install -y nginx
+# Amazon SP-API (when ready)
+AMAZON_SP_API_REFRESH_TOKEN=
+AMAZON_SP_API_CLIENT_ID=
+AMAZON_SP_API_CLIENT_SECRET=
+AMAZON_SELLER_ID=
+AMAZON_MARKETPLACE_ID=ATVPDKIKX0DER
 ```
 
-### Step 2: Clone and Configure
+**Important**: Never commit `.env.local` to git (already in `.gitignore`)
+
+---
+
+## Custom Domain (Vercel)
+
+1. Go to Vercel dashboard → Settings → Domains
+2. Add your domain: `dashboard.visualizesports.com`
+3. Update DNS records as instructed by Vercel
+4. Wait for SSL certificate (automatic)
+
+---
+
+## Monitoring
+
+### Vercel Analytics (Free)
+- Real-time visitor tracking
+- Core Web Vitals
+- Performance insights
+- Enable in Vercel dashboard
+
+### Error Tracking (Optional)
+Consider adding Sentry for production error monitoring:
+```bash
+npm install @sentry/nextjs
+```
+
+---
+
+## Performance Optimization
+
+### Already Implemented:
+- ✅ Static page generation
+- ✅ Code splitting
+- ✅ Image optimization (via Next.js)
+- ✅ CSS minification
+
+### Future Improvements:
+- [ ] Enable Redis caching for SP-API responses
+- [ ] Add service worker for offline support
+- [ ] Implement lazy loading for charts
+- [ ] Add CDN for static assets
+
+---
+
+## Security
+
+### Current Setup:
+- Private GitHub repository
+- No authentication (internal use only)
+- Environment variables for secrets
+
+### Production Recommendations:
+- Add authentication (NextAuth.js)
+- Enable HTTPS-only (automatic on Vercel)
+- Rate limiting on API routes
+- Input validation for any user inputs
+
+---
+
+## CI/CD
+
+Vercel handles CI/CD automatically:
+- Push to `main` → Auto-deploy to production
+- Push to other branches → Preview deployments
+- Pull requests → Automatic preview URLs
+
+---
+
+## Rollback
+
+If a deployment breaks:
+
+1. **Via Vercel Dashboard:**
+   - Go to Deployments
+   - Find previous working version
+   - Click "Promote to Production"
+
+2. **Via Git:**
+   ```bash
+   git revert HEAD
+   git push
+   ```
+
+---
+
+## Local Development
 
 ```bash
-# Clone repo
-git clone https://github.com/[username]/visualize-amazon.git
-cd visualize-amazon
-
 # Install dependencies
 npm install
 
-# Create production .env file
-cp .env.example .env.production
-nano .env.production
-# Add all production credentials
-```
+# Run dev server
+npm run dev
 
-### Step 3: Build Application
-
-```bash
+# Build for production
 npm run build
-```
 
-### Step 4: Start with PM2
-
-```bash
-# Start app
-pm2 start "npm run start" --name visualize-amazon
-
-# Save PM2 config for restart on reboot
-pm2 startup
-pm2 save
-```
-
-### Step 5: Configure Nginx
-
-Create `/etc/nginx/sites-available/visualize-amazon`:
-
-```nginx
-server {
-    listen 80;
-    server_name your-domain.com;
-
-    location / {
-        proxy_pass http://localhost:3000;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host $host;
-        proxy_cache_bypass $http_upgrade;
-    }
-
-    # API endpoints
-    location /api/ {
-        proxy_pass http://localhost:3000/api/;
-        proxy_http_version 1.1;
-    }
-}
-```
-
-Enable the site:
-
-```bash
-sudo ln -s /etc/nginx/sites-available/visualize-amazon /etc/nginx/sites-enabled/
-sudo nginx -t
-sudo systemctl restart nginx
-```
-
-### Step 6: Set Up SSL (Let's Encrypt)
-
-```bash
-sudo apt install -y certbot python3-certbot-nginx
-sudo certbot --nginx -d your-domain.com
-```
-
-### Step 7: Configure Cron Jobs
-
-For automatic data sync, add to crontab:
-
-```bash
-crontab -e
-```
-
-Add these lines:
-
-```
-# Sync Amazon data daily at 2 AM UTC
-0 2 * * * curl -X POST https://your-domain.com/api/sync/amazon -H "Authorization: Bearer YOUR_CRON_SECRET"
-
-# Backup weekly on Sundays at 3 AM UTC
-0 3 * * 0 curl -X POST https://your-domain.com/api/backup/run -H "Authorization: Bearer YOUR_CRON_SECRET"
-```
-
-Set `YOUR_CRON_SECRET` in `.env.production`:
-
-```
-CRON_SECRET=your-secure-random-string
-```
-
-### Step 8: Monitor Application
-
-```bash
-# View logs
-pm2 logs visualize-amazon
-
-# Monitor status
-pm2 monit
-
-# View all processes
-pm2 status
+# Run production build locally
+npm start
 ```
 
 ---
-
-## Database Setup (Supabase)
-
-### Option A: Supabase Cloud (Easiest)
-
-1. Create account at [supabase.com](https://supabase.com)
-2. Create new project
-3. Copy URL and keys to environment variables
-4. Run migrations: `npm run migrate`
-
-### Option B: Self-Hosted PostgreSQL
-
-```bash
-# Install PostgreSQL
-sudo apt install -y postgresql postgresql-contrib
-
-# Create database
-sudo -u postgres createdb visualize_amazon
-
-# Create user
-sudo -u postgres createuser -P visualize_user
-# Set password when prompted
-
-# Grant permissions
-sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE visualize_amazon TO visualize_user;"
-
-# Run migrations
-npm run migrate
-```
-
----
-
-## Post-Deployment Checklist
-
-- [ ] Environment variables set in production
-- [ ] Database migrations completed
-- [ ] SSL certificate installed
-- [ ] Cron jobs configured and tested
-- [ ] Backups configured and tested
-- [ ] Monitoring set up (PM2, Vercel logs)
-- [ ] Data sync test completed manually
-- [ ] Application responding to requests
-- [ ] Logs reviewed for errors
-- [ ] Uptime monitoring configured (optional)
-
-## Testing Production
-
-```bash
-# Test API connectivity
-curl https://your-domain.com/api/health
-
-# Manual sync test
-curl -X POST https://your-domain.com/api/sync/amazon \
-  -H "Authorization: Bearer YOUR_CRON_SECRET"
-
-# Check backup
-curl -X POST https://your-domain.com/api/backup/run \
-  -H "Authorization: Bearer YOUR_CRON_SECRET"
-```
-
-## Monitoring & Maintenance
-
-### View Logs
-
-**Vercel:**
-- Dashboard → **Deployments** → **Runtime logs**
-
-**Self-hosted:**
-```bash
-pm2 logs visualize-amazon
-tail -f /var/log/nginx/error.log
-```
-
-### Update Application
-
-```bash
-# Pull latest code
-git pull origin main
-
-# Rebuild
-npm run build
-
-# Restart (Vercel auto-redeploys)
-# or (Self-hosted)
-pm2 restart visualize-amazon
-```
-
-### Backup & Recovery
-
-Backups run automatically on Sundays at 3 AM UTC.
-
-**Manual backup:**
-```bash
-npm run backup
-```
-
-**Restore from backup:**
-```bash
-node scripts/restore-backup.js path/to/backup.json
-```
 
 ## Troubleshooting
 
-### Application Won't Start
+### Build fails with "Cannot find module"
 ```bash
-# Check logs
-pm2 logs visualize-amazon
-
-# Verify Node.js is installed
-node --version
-
-# Check port 3000 isn't in use
-lsof -i :3000
+rm -rf node_modules package-lock.json
+npm install
+npm run build
 ```
 
-### Cron Jobs Not Running
-- Verify cron syntax: https://crontab.guru
-- Check server time is correct: `date`
-- Verify API endpoint is accessible: `curl https://your-domain.com/api/health`
+### Styling not working
+- Check `tailwind.config.js` has correct content paths
+- Ensure `globals.css` imports Tailwind directives
+- Clear Next.js cache: `rm -rf .next`
 
-### Database Connection Failed
-- Test connection: `psql postgresql://user:password@host/dbname`
-- Verify credentials in environment variables
-- Check firewall allows database connections
+### Charts not rendering
+- Ensure browser supports JavaScript
+- Check console for errors
+- Verify Recharts is installed: `npm list recharts`
 
-### SSL Certificate Expired
-```bash
-sudo certbot renew
-```
-
-(This runs automatically, but can be forced with the command above)
+### Environment variables not working
+- Prefix with `NEXT_PUBLIC_` for client-side access
+- Restart dev server after changing `.env.local`
+- Redeploy to Vercel after adding env vars
 
 ---
 
-## Scaling Considerations
+## Support
 
-For larger datasets or higher traffic:
+For deployment issues:
+- Vercel Docs: https://vercel.com/docs
+- Next.js Docs: https://nextjs.org/docs/deployment
 
-1. **Database**: Upgrade Supabase plan or add replicas
-2. **Caching**: Add Redis for frequently-accessed data
-3. **CDN**: Vercel includes CDN; self-hosted can use Cloudflare
-4. **Load Balancing**: Run multiple app instances behind load balancer (self-hosted only)
-
-See `docs/PROJECT_STRUCTURE.md` for current architecture.
-
----
-
-**Need help?** Check logs, review this guide, or ask for assistance.
+For dashboard-specific questions:
+- See `docs/COMPONENT_GUIDE.md`
+- See `docs/DASHBOARD_DESIGN.md`

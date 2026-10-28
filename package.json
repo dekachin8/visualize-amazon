@@ -7,28 +7,25 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "sync": "node scripts/sync-amazon-data.js",
-    "sync:schedule": "node scripts/schedule-sync.js",
-    "backup": "node scripts/backup-data.js",
-    "test": "jest"
+    "lint": "next lint"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.38.0",
-    "axios": "^1.6.0",
-    "clsx": "^2.1.1",
-    "date-fns": "^4.1.0",
-    "lucide-react": "^1.7.0",
-    "next": "^14.0.0",
+    "next": "14.2.35",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
-    "recharts": "^3.8.1",
-    "tailwind-merge": "^3.5.0"
+    "recharts": "^2.12.0",
+    "lucide-react": "^0.447.0",
+    "date-fns": "^4.1.0",
+    "clsx": "^2.1.1",
+    "tailwind-merge": "^2.6.0"
   },
   "devDependencies": {
+    "typescript": "^5.0.0",
     "@types/node": "^20.0.0",
-    "@types/react": "^18.0.0",
-    "jest": "^29.0.0",
-    "typescript": "^5.0.0"
+    "@types/react": "^18.3.28",
+    "@types/react-dom": "^18.3.5",
+    "tailwindcss": "^3.4.1",
+    "postcss": "^8.4.49",
+    "autoprefixer": "^10.4.20"
   }
 }

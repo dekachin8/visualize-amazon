@@ -1,112 +1,204 @@
-# VISUALIZE Sports - Amazon System
+# VISUALIZE Sports - Amazon Dashboard
 
-Professional inventory management and sales analytics system for VISUALIZE Sports golf products on Amazon.
+A Next.js dashboard for monitoring and managing VISUALIZE Sports golf accessories business on Amazon FBA.
 
-## Quick Start
+## Features
 
-```bash
-# Clone and install
-git clone https://github.com/[username]/visualize-amazon.git
-cd visualize-amazon
-npm install
-
-# Configure environment
-cp .env.example .env.local
-# Edit .env.local with your credentials
-
-# Run locally
-npm run dev
-```
-
-Visit `http://localhost:3000`
-
-## What This Does
-
-- **Sales Analytics**: Track revenue, margins, and trends across ASIN portfolio
-- **Inventory Management**: Monitor stock levels and reorder points
-- **Amazon API Integration**: Real-time sync with Selling Partner API
-- **Data Backup**: Automated daily backups of sales and inventory data
-- **Reporting**: Generate sales reports and forecasts
-
-## Architecture
-
-```
-visualize-amazon/
-├── docs/                 # Documentation
-├── src/
-│   ├── api/             # API routes (Amazon sync, backups)
-│   ├── lib/             # Core logic (data sync, calculations)
-│   └── components/      # React components (dashboards, tables)
-├── config/              # Configuration files
-├── scripts/             # Automation scripts
-└── .env.example         # Configuration template
-```
-
-See `docs/PROJECT_STRUCTURE.md` for complete file organization.
-
-## Configuration
-
-1. **Get Amazon Credentials**: See `docs/API.md` for SP-API setup
-2. **Environment Variables**: Copy `.env.example` to `.env.local` and fill in credentials
-3. **Database** (optional): Configure Supabase if using cloud storage
-
-See `docs/SETUP.md` for detailed setup instructions.
-
-## Development
-
-```bash
-npm run dev              # Start development server
-npm run build           # Build for production
-npm run lint            # Run linter
-npm run sync            # Manual data sync (dev only)
-```
-
-## Deployment
-
-Deploy to Vercel with one click or use git push:
-
-```bash
-# Vercel
-vercel
-
-# GitHub + Vercel integration
-git push origin main
-```
-
-See `docs/DEPLOYMENT.md` for complete deployment guide.
-
-## Data Management
-
-### Automatic Sync
-- Amazon data syncs every night at 2 AM (UTC) via Vercel cron jobs
-- Backups run weekly on Sundays at 3 AM (UTC)
-
-### Manual Sync
-```bash
-npm run sync            # Pull latest Amazon data
-npm run backup          # Create backup now
-```
-
-See `docs/API.md` for API integration details.
-
-## Support & Troubleshooting
-
-- Check `docs/SETUP.md` for common setup issues
-- Review logs in `logs/` directory
-- See `docs/API.md` for Amazon API troubleshooting
+- 📊 **Sales Dashboard** - Revenue trends, units sold, top SKUs
+- 📦 **Inventory Management** - Stock levels, restock recommendations
+- 📈 **Marketing Insights** - PPC campaign performance, ACOS tracking
+- 🤖 **AI Council** - Nightly analysis and prioritized action items
 
 ## Tech Stack
 
-- **Framework**: Next.js 14 (React)
-- **Database**: Supabase (PostgreSQL) - optional
-- **APIs**: Amazon Selling Partner API
+- **Framework**: Next.js 14 (App Router)
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS
+- **Charts**: Recharts
+- **Icons**: Lucide React
 - **Deployment**: Vercel
-- **Language**: TypeScript (recommended)
+
+## Quick Start
+
+### Development
+
+```bash
+# Install dependencies
+npm install
+
+# Run development server
+npm run dev
+
+# Open http://localhost:3000
+```
+
+### Build
+
+```bash
+# Build for production
+npm run build
+
+# Start production server
+npm start
+```
+
+## Project Structure
+
+```
+visualize-amazon/
+├── app/                    # Next.js 14 App Router
+│   ├── dashboard/          # Sales dashboard page
+│   ├── inventory/          # Inventory management page
+│   ├── marketing/          # Marketing insights page
+│   ├── council/            # AI Council recommendations page
+│   ├── api/                # API routes (for SP-API integration)
+│   ├── layout.tsx          # Root layout with navigation
+│   ├── page.tsx            # Root redirect to /dashboard
+│   └── globals.css         # Global styles + Tailwind
+├── components/             # Reusable UI components
+│   ├── Navigation.tsx      # Top navigation bar
+│   ├── StatCard.tsx        # Metric display cards
+│   ├── DataTable.tsx       # Generic table component
+│   └── AlertCard.tsx       # Alert/notification component
+├── lib/                    # Utilities and data
+│   └── mockData.ts         # Mock data (replace with SP-API later)
+├── docs/                   # Documentation
+│   ├── DASHBOARD_DESIGN.md # Design documentation
+│   └── COMPONENT_GUIDE.md  # Component usage guide
+├── tailwind.config.js      # Tailwind configuration
+├── tsconfig.json           # TypeScript configuration
+└── next.config.js          # Next.js configuration
+```
+
+## Current Status
+
+✅ **Completed**:
+- Project scaffolding
+- All 4 main pages with mock data
+- Reusable component library
+- Responsive design (desktop + mobile)
+- Documentation (design + component guide)
+
+🔄 **Next Steps**:
+1. Integrate Amazon SP-API
+2. Replace mock data with live data
+3. Add date range selectors
+4. Implement actual AI Council logic
+5. Add user authentication
+6. Deploy to Vercel
+
+## Pages
+
+### Sales Dashboard (`/dashboard`)
+- Summary stats (revenue, units, orders, conversion)
+- 30-day revenue trend chart
+- 30-day units sold chart
+- Top 5 performing SKUs table
+
+### Inventory (`/inventory`)
+- Critical stock alerts (< 10 days remaining)
+- Restock recommendations with quantities
+- Full SKU inventory table
+- Color-coded urgency (green/yellow/red)
+
+### Marketing (`/marketing`)
+- PPC campaign summary stats
+- Spend vs Revenue chart
+- ACOS distribution
+- Campaign details table
+- Performance insights
+
+### AI Council (`/council`)
+- Priority summary (high/medium/low)
+- Prioritized recommendations by urgency
+- Category-based organization
+- Actionable next steps
+
+## Mock Data
+
+Currently using mock data from `lib/mockData.ts`:
+- 30 days of sales data
+- 5 sample SKUs
+- 4 PPC campaigns
+- 5 AI recommendations
+
+**To integrate real data**: Replace mock data imports with API calls to SP-API endpoints.
+
+## Customization
+
+### Colors
+
+Edit `tailwind.config.js` to change primary color:
+
+```js
+colors: {
+  primary: {
+    500: '#16a34a', // Your brand color
+    // ...
+  },
+}
+```
+
+### Navigation
+
+Edit `components/Navigation.tsx` to add/remove pages:
+
+```tsx
+const navItems = [
+  { href: '/dashboard', label: 'Sales', icon: LayoutDashboard },
+  // Add more items
+]
+```
+
+### Mock Data
+
+Edit `lib/mockData.ts` to change sample data for development.
+
+## Documentation
+
+- **[Design Documentation](docs/DASHBOARD_DESIGN.md)** - UI/UX design, page layouts, responsive strategy
+- **[Component Guide](docs/COMPONENT_GUIDE.md)** - How to use and customize components
+
+## Deployment
+
+### Vercel (Recommended)
+
+1. Push to GitHub
+2. Import project in Vercel
+3. Configure environment variables
+4. Deploy
+
+Environment variables needed:
+```
+AMAZON_SP_API_REFRESH_TOKEN=
+AMAZON_SP_API_CLIENT_ID=
+AMAZON_SP_API_CLIENT_SECRET=
+AMAZON_SELLER_ID=
+AMAZON_MARKETPLACE_ID=
+```
+
+### Manual Deployment
+
+```bash
+npm run build
+npm start
+```
+
+## Future Enhancements
+
+- [ ] Amazon SP-API integration
+- [ ] User authentication
+- [ ] Date range filtering
+- [ ] Export to CSV/PDF
+- [ ] Email alerts for critical issues
+- [ ] Keyword tracking
+- [ ] Competitor monitoring
+- [ ] Mobile app (React Native)
 
 ## License
 
-Private project for VISUALIZE Sports.
+Private - VISUALIZE Sports / JKS International
 
----
+## Support
 
-**Questions?** Check the docs/ folder or update this README as you learn.
+For questions or issues, contact: Tim O'Hagan
